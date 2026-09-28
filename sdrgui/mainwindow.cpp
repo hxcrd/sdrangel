@@ -788,7 +788,7 @@ void RemoveDeviceSetFSM::removeUI()
     delete m_deviceUISet->m_deviceGUI;
     m_deviceUISet->m_deviceAPI->resetSamplingDeviceId();
     if (!m_deviceMIMOEngine) {
-        m_deviceUISet->m_deviceAPI->clearBuddiesLists(); // clear old API buddies lists
+        // buddies are now cleared in removeDeviceSet(), AFTER the device is deleted (see #2721)
     }
 }
 
@@ -830,11 +830,13 @@ void RemoveDeviceSetFSM::removeDeviceSet()
     if (m_deviceSourceEngine)
     {
         delete deviceAPI->getSampleSource();
+        deviceAPI->clearBuddiesLists(); // after the delete, so closeDevice() still saw its buddies (#2721)
         delete m_deviceSourceEngine;
     }
     else if (m_deviceSinkEngine)
     {
         delete deviceAPI->getSampleSink();
+        deviceAPI->clearBuddiesLists(); // after the delete, so closeDevice() still saw its buddies (#2721)
         delete m_deviceSinkEngine;
     }
     else
